@@ -47,6 +47,22 @@ class TestAegis(unittest.TestCase):
         self.assertIn("human approval", self.incidents[0].suggested_response)
 
 
+class TestApiStorage(unittest.TestCase):
+    def setUp(self):
+        self.incidents = correlate(run_detectors(parse_file(SAMPLE)))
+
+    def test_save_and_list_incidents_in_sqlite(self):
+        import tempfile
+        from creox_aegis.api import list_incidents, save_incidents
+        path = tempfile.mktemp(suffix=".db")
+        save_incidents(self.incidents, path=path)
+        listed = list_incidents(path=path)
+        self.assertEqual(len(listed), 1)
+        self.assertEqual(listed[0]["ip"], "192.168.1.50")
+        self.assertEqual(listed[0]["risk_score"], 95)
+        self.assertIn("SUGGESTED", listed[0]["suggested_response"])
+
+
 class TestHoneypot(unittest.TestCase):
     def test_simulated_honeypot_produces_one_incident(self):
         import tempfile

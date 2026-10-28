@@ -45,8 +45,16 @@ writes a fictional 20-line attacker session (port scan → brute force →
 SQLi probe) that the v1 detectors analyse into 1 incident (95/100).
 Tests: 8/8 pass.
 
-## Roadmap
-- Phase 3: FastAPI dashboard + SQLite + exportable report
+## Phase 3 — FastAPI dashboard + SQLite (DONE)
+```bash
+pip install -r requirements.txt
+python -m uvicorn creox_aegis.api:app --port 8000
+# Dashboard: http://127.0.0.1:8000/   API docs: http://127.0.0.1:8000/docs
+```
+Endpoints: `GET /health`, `POST /analyze` (log text → incidents, saved to
+SQLite `aegis.db`), `GET /incidents`, `GET /incidents/{id}`, `GET /` (HTML dashboard).
+Verified: health ok, /analyze on sample log → 1 incident 95/100, dashboard loads.
+Tests: 9/9 pass (including SQLite save/list test).
 
 ## Boundaries (never to be added)
 - No real-target scanning, exploitation, payloads, or malware.
