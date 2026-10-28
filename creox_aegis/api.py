@@ -184,7 +184,7 @@ a{{color:#22d3ee}}
 </svg>
 <svg width="280" height="280" viewBox="0 0 280 280" style="position:absolute;inset:0;z-index:1">
 <defs><clipPath id="globeClip"><circle cx="140" cy="140" r="118"/></clipPath></defs>
-<g clip-path="url(#globeClip)" transform="translate(0,70) scale(0.28)" fill="rgba(34,211,238,0.35)" stroke="#22d3ee" stroke-width="3">
+<g clip-path="url(#globeClip)" transform="translate(0,55) scale(0.28)" fill="rgba(34,211,238,0.65)" stroke="#a5f3fc" stroke-width="6">
 <path d="M80,140 L120,90 L200,70 L260,80 L300,130 L280,180 L220,210 L180,190 L140,170 Z"/>
 <path d="M280,260 L320,250 L360,300 L340,380 L300,400 L270,320 Z"/>
 <path d="M480,110 L540,90 L580,120 L560,160 L500,150 Z"/>
