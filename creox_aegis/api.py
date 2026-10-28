@@ -147,9 +147,9 @@ header{{position:relative;padding:16px 28px;background:linear-gradient(90deg,#04
 .alert{{display:flex;gap:10px;align-items:flex-start;border-bottom:1px solid rgba(34,211,238,.2);padding:10px 0}}
 .dot{{width:9px;height:9px;border-radius:50%;margin-top:5px;flex-shrink:0;box-shadow:0 0 12px currentColor}}.dot.red{{background:#f43f5e;color:#f43f5e}}.dot.amber{{background:#f59e0b;color:#f59e0b}}
 .risk{{margin-left:auto;color:#f43f5e;text-shadow:0 0 12px #f43f5e}}.small{{color:#94a3b8;font-size:14px;line-height:1.5}}
-.radar{{position:relative;width:260px;height:260px;margin:8px auto;border-radius:50%;border:1px solid rgba(34,211,238,.5);background:radial-gradient(circle,rgba(34,211,238,.18),transparent 65%);overflow:hidden;box-shadow:0 0 40px rgba(34,211,238,.3)}}
+.radar{{position:relative;width:280px;height:280px;margin:8px auto;border-radius:50%;border:1px solid rgba(34,211,238,.6);background:radial-gradient(circle at 50% 50%,#0e3a5e 0%,#071a2e 55%,#020617 100%);overflow:hidden;box-shadow:0 0 50px rgba(34,211,238,.4),0 0 18px rgba(34,211,238,.3) inset}}
 .radar::before{{content:'';position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,rgba(34,211,238,.45),transparent 22%);animation:sweep 4s linear infinite}}
-@keyframes sweep{{to{{transform:rotate(360deg)}}}}
+@keyframes sweep{{to{{transform:rotate(360deg)}}}} @keyframes blip{{0%{{opacity:0;transform:scale(.6)}}25%{{opacity:1;transform:scale(1.4)}}100%{{opacity:0;transform:scale(2.2)}}}} @keyframes glowpulse{{0%,100%{{box-shadow:0 0 24px rgba(34,211,238,.25)}}50%{{box-shadow:0 0 44px rgba(34,211,238,.55)}}}} .panel{{animation:glowpulse 5s ease-in-out infinite}}
 .pulse-node{{animation:pulse 2s ease-in-out infinite}} @keyframes pulse{{0%,100%{{opacity:1}}50%{{opacity:.35}}}}
 .pipeline{{display:flex;justify-content:space-between;margin-top:16px}}
 .step{{text-align:center;flex:1;border-top:2px solid #22d3ee;padding-top:10px;font-size:12px;letter-spacing:2px;color:#94a3b8}}
@@ -170,7 +170,24 @@ a{{color:#22d3ee}}
 <h2 style="margin-top:18px">Lab Overview</h2>
 <div class="small">Unique attacker IPs: <b style="color:#fff">{ips}</b><br>Evidence lines analysed: <b style="color:#fff">{evidence}</b><br>Detectors active: <b style="color:#fff">5</b> — brute force, port scan, credential stuffing, SQLi probe, burst</div></div>
 <div class="panel"><h2>Threat Network — Lab View</h2>
-<div class="radar"><svg width="260" height="260" viewBox="0 0 340 210" style="position:relative;z-index:1">{svg_links}{svg_nodes}</svg></div>
+<div class="radar">
+<svg width="280" height="280" viewBox="0 0 280 280" style="position:absolute;inset:0;z-index:1">
+<circle cx="140" cy="140" r="118" fill="none" stroke="rgba(34,211,238,.35)"/>
+<circle cx="140" cy="140" r="80" fill="none" stroke="rgba(34,211,238,.25)"/>
+<circle cx="140" cy="140" r="42" fill="none" stroke="rgba(34,211,238,.2)"/>
+<ellipse cx="140" cy="140" rx="118" ry="42" fill="none" stroke="rgba(34,211,238,.3)"/>
+<ellipse cx="140" cy="140" rx="118" ry="84" fill="none" stroke="rgba(34,211,238,.22)"/>
+<ellipse cx="140" cy="140" rx="52" ry="118" fill="none" stroke="rgba(34,211,238,.3)"/>
+<ellipse cx="140" cy="140" rx="92" ry="118" fill="none" stroke="rgba(34,211,238,.22)"/>
+<line x1="22" y1="140" x2="258" y2="140" stroke="rgba(34,211,238,.25)"/>
+<line x1="140" y1="22" x2="140" y2="258" stroke="rgba(34,211,238,.25)"/>
+</svg>
+<div style="position:absolute;inset:0;z-index:2">
+<span style="position:absolute;left:32%;top:28%;width:12px;height:12px;border-radius:50%;background:#f43f5e;box-shadow:0 0 16px #f43f5e;animation:blip 2.4s ease-out infinite"></span>
+<span style="position:absolute;left:62%;top:52%;width:12px;height:12px;border-radius:50%;background:#22d3ee;box-shadow:0 0 16px #22d3ee;animation:blip 3.1s ease-out infinite .8s"></span>
+<span style="position:absolute;left:48%;top:68%;width:12px;height:12px;border-radius:50%;background:#f59e0b;box-shadow:0 0 16px #f59e0b;animation:blip 2.8s ease-out infinite 1.4s"></span>
+</div>
+</div>
 <div class="small" style="text-align:center;margin-top:8px">Lab visualisation only — incidents are from analysed log files, not real-world traffic.</div>
 <div class="pipeline"><div class="step"><b>01</b>Detect</div><div class="step"><b>02</b>Analyse</div><div class="step"><b>03</b>Contain</div><div class="step"><b>04</b>Respond</div><div class="step"><b>05</b>Recover</div></div></div>
 <div class="panel"><h2>AI Analysis</h2>
