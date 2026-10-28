@@ -131,6 +131,10 @@ def dashboard():
     svg_nodes = "".join(f"<circle class='pulse-node' cx='{x}' cy='{y}' r='5' fill='#22d3ee'/>" for x,y in nodes)
     return f"""<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Creox Aegis — Threat Detection &amp; Response</title>
+<script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/map.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/geodata/worldLow.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 *{{box-sizing:border-box}}body{{margin:0;font-family:'Rajdhani',system-ui,Arial,sans-serif;background:#020617;color:#dbeafe;overflow-x:hidden}}
@@ -170,26 +174,8 @@ a{{color:#22d3ee}}
 <h2 style="margin-top:18px">Lab Overview</h2>
 <div class="small">Unique attacker IPs: <b style="color:#fff">{ips}</b><br>Evidence lines analysed: <b style="color:#fff">{evidence}</b><br>Detectors active: <b style="color:#fff">5</b> — brute force, port scan, credential stuffing, SQLi probe, burst</div></div>
 <div class="panel"><h2>Threat Network — Lab View</h2>
-<div class="radar">
-<div style="position:absolute;inset:0;z-index:1;animation:maprotate 24s linear infinite"><svg width="280" height="280" viewBox="0 0 280 280" style="width:100%;height:100%">
-<defs><linearGradient id="holoGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#22d3ee" stop-opacity="0.9"/><stop offset="50%" stop-color="#818cf8" stop-opacity="0.7"/><stop offset="100%" stop-color="#22d3ee" stop-opacity="0.9"/></linearGradient><clipPath id="globeClip"><circle cx="140" cy="140" r="118"/></clipPath></defs>
-<g clip-path="url(#globeClip)" transform="translate(0,55) scale(0.28)" fill="url(#holoGrad)" stroke="#a5f3fc" stroke-width="6">
-<path d="M80,140 L120,90 L200,70 L260,80 L300,130 L280,180 L220,210 L180,190 L140,170 Z"/>
-<path d="M280,260 L320,250 L360,300 L340,380 L300,400 L270,320 Z"/>
-<path d="M480,110 L540,90 L580,120 L560,160 L500,150 Z"/>
-<path d="M500,200 L560,190 L610,240 L590,330 L530,350 L490,280 Z"/>
-<path d="M600,100 L750,80 L900,110 L920,180 L800,210 L650,180 Z"/>
-<path d="M800,340 L870,330 L890,370 L830,390 Z"/>
-</g>
-</svg></div>
-<div style="position:absolute;inset:0;z-index:2;overflow:hidden;border-radius:50%"><div style="position:absolute;top:0;bottom:0;width:35%;background:linear-gradient(90deg,transparent,rgba(165,243,252,.28),transparent);animation:sheen 5s ease-in-out infinite"></div></div>
-<div style="position:absolute;inset:0;z-index:3">
-<span style="position:absolute;left:32%;top:28%;width:12px;height:12px;border-radius:50%;background:#f43f5e;box-shadow:0 0 16px #f43f5e;animation:blip 2.4s ease-out infinite"></span>
-<span style="position:absolute;left:62%;top:52%;width:12px;height:12px;border-radius:50%;background:#22d3ee;box-shadow:0 0 16px #22d3ee;animation:blip 3.1s ease-out infinite .8s"></span>
-<span style="position:absolute;left:48%;top:68%;width:12px;height:12px;border-radius:50%;background:#f59e0b;box-shadow:0 0 16px #f59e0b;animation:blip 2.8s ease-out infinite 1.4s"></span>
-</div>
-</div>
-<div class="small" style="text-align:center;margin-top:8px">Lab visualisation only — incidents are from analysed log files, not real-world traffic.</div>
+<div id="chartdiv" style="width:100%;height:300px"></div>
+<div class="small" style="text-align:center;margin-top:8px">Lab visualisation only — incidents are from analysed log files, not real-world traffic. Drag to spin the globe.</div>
 <div class="pipeline"><div class="step"><b>01</b>Detect</div><div class="step"><b>02</b>Analyse</div><div class="step"><b>03</b>Contain</div><div class="step"><b>04</b>Respond</div><div class="step"><b>05</b>Recover</div></div></div>
 <div class="panel"><h2>AI Analysis</h2>
 <div class="check"><span>✓</span>Correlating events by IP &amp; time</div>
@@ -204,4 +190,17 @@ a{{color:#22d3ee}}
 <div style="position:relative;padding:0 14px 20px"><div class="panel"><h2>All Incidents — Timeline &amp; Detail</h2>
 <table><tr><th>ID</th><th>IP</th><th>Risk</th><th>Detectors</th><th>Timeline</th></tr>{rows}</table>
 <p class="small">Defensive only, lab only. Responses are suggestions needing human approval. API docs: <a href="/docs">/docs</a> · Health: <a href="/health">/health</a> · JSON: <a href="/incidents">/incidents</a></p></div></div>
+<script>
+var root = am5.Root.new("chartdiv");
+root.setThemes([am5themes_Animated.new(root)]);
+var chart = root.container.children.push(am5map.MapChart.new(root, {
+  panX: "rotateX", panY: "rotateY", projection: am5map.geoOrthographic(),
+  homeZoomLevel: 0.95, zoomLevel: 0.95, minZoomLevel: 0.5, animationDuration: 800
+}));
+var polygonSeries = chart.series.push(am5map.MapPolygonSeries.new(root, { geoJSON: am5geodata_worldLow }));
+polygonSeries.mapPolygons.template.setAll({ fill: am5.color(0x155e75), stroke: am5.color(0x22d3ee), strokeWidth: 0.5, tooltipText: "{name}", interactive: true });
+polygonSeries.mapPolygons.template.states.create("hover", { fill: am5.color(0x22d3ee), fillOpacity: 1 });
+var spin = chart.animate({ key: "rotationX", from: 0, to: 360, duration: 30000, loops: Infinity });
+chart.appear(1000, 100);
+</script>
 </body></html>"""
