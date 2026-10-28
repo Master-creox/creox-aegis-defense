@@ -131,10 +131,10 @@ def dashboard():
     svg_nodes = "".join(f"<circle class='pulse-node' cx='{x}' cy='{y}' r='5' fill='#22d3ee'/>" for x,y in nodes)
     return f"""<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Creox Aegis — Threat Detection &amp; Response</title>
-<script src="https://cdn.amcharts.com/lib/5/index.js"></script>
-<script src="https://cdn.amcharts.com/lib/5/map.js"></script>
-<script src="https://cdn.amcharts.com/lib/5/geodata/worldLow.js"></script>
-<script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/amcharts/amcharts5-dist@5/index.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/amcharts/amcharts5-dist@5/map.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/amcharts/amcharts5-dist@5/geodata/worldLow.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/amcharts/amcharts5-dist@5/themes/Animated.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 *{{box-sizing:border-box}}body{{margin:0;font-family:'Rajdhani',system-ui,Arial,sans-serif;background:#020617;color:#dbeafe;overflow-x:hidden}}
