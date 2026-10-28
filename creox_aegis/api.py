@@ -112,57 +112,65 @@ def dashboard():
     total = len(incidents)
     highest = max((i["risk_score"] for i in incidents), default=0)
     ips = len({i["ip"] for i in incidents})
-
-    def risk_class(r: int) -> str:
-        return "high" if r >= 85 else ("med" if r >= 70 else "low")
-
-    def risk_label(r: int) -> str:
-        return "CRITICAL" if r >= 85 else ("HIGH" if r >= 70 else "MEDIUM")
-
-    cards = "".join(
-        f"<div class='card'><div class='card-num'>{inc['risk_score']}</div>"
-        f"<div class='card-label'>{risk_label(inc['risk_score'])} · {inc['ip']}</div>"
-        f"<div class='small'>{', '.join(inc['detectors'])}</div>"
-        f"<div class='small'>{inc['first_seen']} → {inc['last_seen']}</div></div>"
-        for inc in incidents[:6]
-    )
+    evidence = sum(i["evidence_count"] for i in incidents)
+    crit = sum(1 for i in incidents if i["risk_score"] >= 85)
+    high = sum(1 for i in incidents if 70 <= i["risk_score"] < 85)
+    med = sum(1 for i in incidents if i["risk_score"] < 70)
+    # Gauge: donut arc for highest risk (0-100)
+    import math
+    pct = highest / 100.0
+    # SVG circle r=52, circumference ~326.7
+    dash = round(326.7 * pct, 1)
+    left = "".join(
+        f"<div class='alert'><span class='dot {'red' if i['risk_score']>=85 else 'amber'}'></span><div><b>{i['ip']}</b><br><span class='small'>{', '.join(i['detectors'])}</span><br><span class='small'>{i['first_seen']} → {i['last_seen']}</span></div><b class='risk'>{i['risk_score']}</b></div>"
+        for i in incidents[:5]
+    ) or "<p class='small'>No incidents yet — open <a href='/docs'>/docs</a>, POST /analyze with the sample log, then refresh.</p>"
     rows = "".join(
-        f"<tr><td>{i['id']}</td><td><b>{i['ip']}</b></td>"
-        f"<td><span class='badge {risk_class(i['risk_score'])}'>{i['risk_score']} · {risk_label(i['risk_score'])}</span></td>"
-        f"<td>{', '.join(i['detectors'])}</td><td>{i['first_seen']} → {i['last_seen']}</td>"
-        f"<td>{i['evidence_count']} lines</td></tr>"
+        f"<tr><td>{i['id']}</td><td><b>{i['ip']}</b></td><td>{i['risk_score']}</td><td>{', '.join(i['detectors'])}</td><td>{i['first_seen']} → {i['last_seen']}</td></tr>"
         for i in incidents
-    ) or "<tr><td colspan='6'>No incidents yet — open <a href='/docs'>/docs</a>, use POST /analyze, paste the sample log text, then refresh this page.</td></tr>"
+    ) or "<tr><td colspan='5'>No incidents yet.</td></tr>"
     return f"""<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Creox Aegis — Dashboard</title>
+<title>Creox Aegis — Threat Detection &amp; Response</title>
 <style>
-*{{box-sizing:border-box}}body{{margin:0;font-family:system-ui,Arial,sans-serif;background:#070b14;color:#e8eefc}}
-header{{padding:22px 28px;background:linear-gradient(90deg,#0d1b33,#102a4d);border-bottom:3px solid #00e5a0}}
-h1{{margin:0;font-size:26px}}h1 span{{color:#00e5a0}}.sub{{color:#9fb3d8;margin-top:6px}}
-.wrap{{max-width:1020px;margin:auto;padding:20px}}
-.stats{{display:flex;gap:14px;flex-wrap:wrap;margin:16px 0}}
-.stat{{flex:1;min-width:160px;background:#101c36;border:1px solid #24365e;border-radius:14px;padding:16px}}
-.stat b{{font-size:30px;color:#00e5a0;display:block}}.stat span{{color:#9fb3d8}}
-.cards{{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:16px 0}}
-.card{{background:#101c36;border:1px solid #24365e;border-left:5px solid #ff4d5e;border-radius:14px;padding:14px}}
-.card-num{{font-size:28px;font-weight:700}}.card-label{{font-weight:600;margin:4px 0}}.small{{color:#9fb3d8;font-size:13px}}
-table{{width:100%;border-collapse:collapse;background:#101c36;border-radius:14px;overflow:hidden}}
-th,td{{border-bottom:1px solid #24365e;padding:10px;text-align:left}}th{{color:#9fb3d8}}
-.badge{{padding:4px 10px;border-radius:20px;font-weight:700;font-size:13px}}
-.badge.high{{background:#ff4d5e;color:#fff}}.badge.med{{background:#ff9f2e;color:#111}}.badge.low{{background:#00e5a0;color:#111}}
-a{{color:#00e5a0}}button{{background:#00e5a0;border:0;padding:10px 16px;border-radius:10px;font-weight:700;cursor:pointer}}
-</style></head>
-<body><header><h1>🛡️ Creox <span>Aegis</span> — Dashboard</h1>
-<div class="sub">Autonomous Cyber Defense · Defensive only, lab only · Responses are suggestions needing human approval</div></header>
-<div class="wrap">
-<div class="stats">
-<div class="stat"><b>{total}</b><span>Total incidents</span></div>
-<div class="stat"><b>{highest}</b><span>Highest risk</span></div>
-<div class="stat"><b>{ips}</b><span>Unique attacker IPs</span></div>
+*{{box-sizing:border-box}}body{{margin:0;font-family:system-ui,Arial,sans-serif;background:#04070f;color:#dbeafe}}
+header{{padding:16px 24px;background:#071426;border-bottom:2px solid #00e5ff;display:flex;justify-content:space-between;align-items:center}}
+header h1{{margin:0;font-size:20px;letter-spacing:1px}}header h1 span{{color:#00e5ff}}
+.grid{{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:14px;padding:14px}}@media(max-width:900px){{.grid{{grid-template-columns:1fr}}}}
+.panel{{background:linear-gradient(180deg,#0a1c33,#071426);border:1px solid #1e3a5f;border-radius:14px;padding:16px}}
+.panel h2{{margin:0 0 12px;font-size:14px;letter-spacing:1px;color:#7dd3fc}}
+.alert{{display:flex;gap:10px;align-items:flex-start;border-bottom:1px solid #1e3a5f;padding:10px 0}}
+.dot{{width:10px;height:10px;border-radius:50%;margin-top:5px;flex-shrink:0}}.dot.red{{background:#ff4d5e;box-shadow:0 0 10px #ff4d5e}}.dot.amber{{background:#ff9f2e}}
+.risk{{margin-left:auto;color:#ff4d5e}}.small{{color:#94a3b8;font-size:13px}}
+.orb{{width:200px;height:200px;margin:10px auto;border-radius:50%;background:radial-gradient(circle at 35% 35%,#38bdf8,#0b3a6b 55%,#04070f 80%);border:1px solid #38bdf8;box-shadow:0 0 40px #0ea5e9 inset,0 0 30px #0ea5e9;display:flex;align-items:center;justify-content:center;font-size:44px}}
+.pipeline{{display:flex;justify-content:space-between;text-align:center;margin-top:14px;color:#7dd3fc;font-size:13px}}
+.pipeline b{{display:block;color:#fff;font-size:14px}}
+.check{{color:#34d399;margin:8px 0}}
+.gauge{{text-align:center}}.gauge svg{{transform:rotate(-90deg)}}.gauge-num{{font-size:30px;font-weight:800;margin-top:-78px}}
+.legend{{font-size:13px;color:#94a3b8;line-height:1.9}}
+button{{background:#00e5ff;border:0;padding:10px 16px;border-radius:10px;font-weight:700;cursor:pointer}}
+table{{width:100%;border-collapse:collapse}}th,td{{border-bottom:1px solid #1e3a5f;padding:9px;text-align:left}}th{{color:#7dd3fc}}
+a{{color:#00e5ff}}
+</style></head><body>
+<header><h1>🛡️ CREOX <span>AEGIS</span> — THREAT DETECTION &amp; RESPONSE</h1><button onclick="location.reload()">↻ Refresh</button></header>
+<div class="grid">
+<div class="panel"><h2>ACTIVE INCIDENTS · {total}</h2>{left}
+<h2 style="margin-top:16px">LAB OVERVIEW</h2>
+<div class="small">Unique attacker IPs: <b style="color:#fff">{ips}</b><br>Evidence lines analysed: <b style="color:#fff">{evidence}</b><br>Detectors active: <b style="color:#fff">5</b> (brute force, port scan, credential stuffing, SQLi probe, burst)</div></div>
+<div class="panel"><h2>GLOBAL THREAT VIEW — LAB NETWORK</h2>
+<div class="orb">🌐</div>
+<div class="small" style="text-align:center">Live view is a lab visualisation — incidents above are from analysed log files, not real-world traffic.</div>
+<div class="pipeline"><div>🔍<b>Detect</b></div><div>📊<b>Analyse</b></div><div>🔒<b>Contain</b></div><div>⚡<b>Respond</b></div><div>♻️<b>Recover</b></div></div></div>
+<div class="panel"><h2>AI ANALYSIS</h2>
+<div class="check">✓ Correlating events by IP &amp; time</div>
+<div class="check">✓ Detecting anomalous behaviour</div>
+<div class="check">✓ Prioritising true positives</div>
+<div class="check">✓ Recommending response actions</div>
+<div class="small">Every alert shows its reason + evidence lines — no black-box score.</div>
+<h2 style="margin-top:16px">RISK &amp; SEVERITY</h2>
+<div class="gauge"><svg width="140" height="140" viewBox="0 0 140 140"><circle cx="70" cy="70" r="52" fill="none" stroke="#1e3a5f" stroke-width="14"/><circle cx="70" cy="70" r="52" fill="none" stroke="#ff4d5e" stroke-width="14" stroke-dasharray="{dash} 326.7" stroke-linecap="round"/></svg><div class="gauge-num">{highest}</div><div class="small">Highest Risk Score</div></div>
+<div class="legend">🔴 Critical: {crit} &nbsp; 🟠 High: {high} &nbsp; 🟢 Medium/Low: {med}</div></div>
 </div>
-<button onclick="location.reload()">↻ Refresh</button>
-<h2>Top incidents</h2><div class="cards">{cards or "<p>No incidents yet.</p>"}</div>
-<h2>All incidents</h2>
-<table><tr><th>ID</th><th>IP</th><th>Risk</th><th>Detectors</th><th>Timeline</th><th>Evidence</th></tr>{rows}</table>
-<p>API docs: <a href="/docs">/docs</a> · Health: <a href="/health">/health</a> · Incidents JSON: <a href="/incidents">/incidents</a></p>
-</div></body></html>"""
+<div style="padding:0 14px 20px"><div class="panel"><h2>ALL INCIDENTS — TIMELINE &amp; DETAIL</h2>
+<table><tr><th>ID</th><th>IP</th><th>Risk</th><th>Detectors</th><th>Timeline</th></tr>{rows}</table>
+<p class="small">Defensive only, lab only. Responses are suggestions needing human approval. API docs: <a href="/docs">/docs</a> · Health: <a href="/health">/health</a> · JSON: <a href="/incidents">/incidents</a></p></div></div>
+</body></html>"""
