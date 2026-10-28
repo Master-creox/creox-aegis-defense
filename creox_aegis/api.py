@@ -191,6 +191,8 @@ a{{color:#22d3ee}}
 <table><tr><th>ID</th><th>IP</th><th>Risk</th><th>Detectors</th><th>Timeline</th></tr>{rows}</table>
 <p class="small">Defensive only, lab only. Responses are suggestions needing human approval. API docs: <a href="/docs">/docs</a> · Health: <a href="/health">/health</a> · JSON: <a href="/incidents">/incidents</a></p></div></div>
 <script>
+try {
+if (typeof am5 === "undefined" || typeof am5map === "undefined") { throw new Error("amCharts CDN load nahi hua"); }
 var root = am5.Root.new("chartdiv");
 root.setThemes([am5themes_Animated.new(root)]);
 var chart = root.container.children.push(am5map.MapChart.new(root, {{
@@ -198,9 +200,12 @@ var chart = root.container.children.push(am5map.MapChart.new(root, {{
   homeZoomLevel: 0.95, zoomLevel: 0.95, minZoomLevel: 0.5, animationDuration: 800
 }}));
 var polygonSeries = chart.series.push(am5map.MapPolygonSeries.new(root, {{ geoJSON: am5geodata_worldLow }}));
-polygonSeries.mapPolygons.template.setAll({{ fill: am5.color(0x155e75), stroke: am5.color(0x22d3ee), strokeWidth: 0.5, tooltipText: "{{name}}", interactive: true }});
+polygonSeries.mapPolygons.template.setAll({{ fill: am5.color(0x0e7490), stroke: am5.color(0x67e8f9), strokeWidth: 1, tooltipText: "{{name}}", interactive: true }});
 polygonSeries.mapPolygons.template.states.create("hover", {{ fill: am5.color(0x22d3ee), fillOpacity: 1 }});
 var spin = chart.animate({{ key: "rotationX", from: 0, to: 360, duration: 30000, loops: Infinity }});
 chart.appear(1000, 100);
+} catch (e) {
+  document.getElementById("chartdiv").innerHTML = "<p style='text-align:center;padding:110px 20px;color:#fca5a5'>Globe load nahi hua: " + e.message + "<br>Browser me F12 → Console me error check karo, ya page ko Ctrl+F5 se hard refresh karo.</p>";
+}
 </script>
 </body></html>"""
