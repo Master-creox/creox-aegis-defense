@@ -108,13 +108,61 @@ def incident(incident_id: int):
 
 @app.get("/", response_class=HTMLResponse)
 def dashboard():
+    incidents = list_incidents()
+    total = len(incidents)
+    highest = max((i["risk_score"] for i in incidents), default=0)
+    ips = len({i["ip"] for i in incidents})
+
+    def risk_class(r: int) -> str:
+        return "high" if r >= 85 else ("med" if r >= 70 else "low")
+
+    def risk_label(r: int) -> str:
+        return "CRITICAL" if r >= 85 else ("HIGH" if r >= 70 else "MEDIUM")
+
+    cards = "".join(
+        f"<div class='card'><div class='card-num'>{inc['risk_score']}</div>"
+        f"<div class='card-label'>{risk_label(inc['risk_score'])} · {inc['ip']}</div>"
+        f"<div class='small'>{', '.join(inc['detectors'])}</div>"
+        f"<div class='small'>{inc['first_seen']} → {inc['last_seen']}</div></div>"
+        for inc in incidents[:6]
+    )
     rows = "".join(
-        f"<tr><td>{i['id']}</td><td>{i['ip']}</td><td>{i['risk_score']}</td>"
-        f"<td>{', '.join(i['detectors'])}</td><td>{i['first_seen']} → {i['last_seen']}</td></tr>"
-        for i in list_incidents()
-    ) or "<tr><td colspan='5'>No incidents yet — POST log text to /analyze first.</td></tr>"
-    return f"""<!DOCTYPE html><html><head><meta charset="utf-8"><title>Creox Aegis Dashboard</title>
-<style>body{{font-family:system-ui;background:#070b14;color:#e8eefc}}table{{border-collapse:collapse}}td,th{{border:1px solid #24365e;padding:8px}}</style></head>
-<body><h1>🛡️ Creox Aegis — Dashboard</h1><p>Defensive only, lab only. Responses are suggestions needing human approval.</p>
-<table><tr><th>ID</th><th>IP</th><th>Risk</th><th>Detectors</th><th>Timeline</th></tr>{rows}</table>
-<p>API docs: <a href="/docs">/docs</a> · Health: <a href="/health">/health</a></p></body></html>"""
+        f"<tr><td>{i['id']}</td><td><b>{i['ip']}</b></td>"
+        f"<td><span class='badge {risk_class(i['risk_score'])}'>{i['risk_score']} · {risk_label(i['risk_score'])}</span></td>"
+        f"<td>{', '.join(i['detectors'])}</td><td>{i['first_seen']} → {i['last_seen']}</td>"
+        f"<td>{i['evidence_count']} lines</td></tr>"
+        for i in incidents
+    ) or "<tr><td colspan='6'>No incidents yet — open <a href='/docs'>/docs</a>, use POST /analyze, paste the sample log text, then refresh this page.</td></tr>"
+    return f"""<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Creox Aegis — Dashboard</title>
+<style>
+*{{box-sizing:border-box}}body{{margin:0;font-family:system-ui,Arial,sans-serif;background:#070b14;color:#e8eefc}}
+header{{padding:22px 28px;background:linear-gradient(90deg,#0d1b33,#102a4d);border-bottom:3px solid #00e5a0}}
+h1{{margin:0;font-size:26px}}h1 span{{color:#00e5a0}}.sub{{color:#9fb3d8;margin-top:6px}}
+.wrap{{max-width:1020px;margin:auto;padding:20px}}
+.stats{{display:flex;gap:14px;flex-wrap:wrap;margin:16px 0}}
+.stat{{flex:1;min-width:160px;background:#101c36;border:1px solid #24365e;border-radius:14px;padding:16px}}
+.stat b{{font-size:30px;color:#00e5a0;display:block}}.stat span{{color:#9fb3d8}}
+.cards{{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:16px 0}}
+.card{{background:#101c36;border:1px solid #24365e;border-left:5px solid #ff4d5e;border-radius:14px;padding:14px}}
+.card-num{{font-size:28px;font-weight:700}}.card-label{{font-weight:600;margin:4px 0}}.small{{color:#9fb3d8;font-size:13px}}
+table{{width:100%;border-collapse:collapse;background:#101c36;border-radius:14px;overflow:hidden}}
+th,td{{border-bottom:1px solid #24365e;padding:10px;text-align:left}}th{{color:#9fb3d8}}
+.badge{{padding:4px 10px;border-radius:20px;font-weight:700;font-size:13px}}
+.badge.high{{background:#ff4d5e;color:#fff}}.badge.med{{background:#ff9f2e;color:#111}}.badge.low{{background:#00e5a0;color:#111}}
+a{{color:#00e5a0}}button{{background:#00e5a0;border:0;padding:10px 16px;border-radius:10px;font-weight:700;cursor:pointer}}
+</style></head>
+<body><header><h1>🛡️ Creox <span>Aegis</span> — Dashboard</h1>
+<div class="sub">Autonomous Cyber Defense · Defensive only, lab only · Responses are suggestions needing human approval</div></header>
+<div class="wrap">
+<div class="stats">
+<div class="stat"><b>{total}</b><span>Total incidents</span></div>
+<div class="stat"><b>{highest}</b><span>Highest risk</span></div>
+<div class="stat"><b>{ips}</b><span>Unique attacker IPs</span></div>
+</div>
+<button onclick="location.reload()">↻ Refresh</button>
+<h2>Top incidents</h2><div class="cards">{cards or "<p>No incidents yet.</p>"}</div>
+<h2>All incidents</h2>
+<table><tr><th>ID</th><th>IP</th><th>Risk</th><th>Detectors</th><th>Timeline</th><th>Evidence</th></tr>{rows}</table>
+<p>API docs: <a href="/docs">/docs</a> · Health: <a href="/health">/health</a> · Incidents JSON: <a href="/incidents">/incidents</a></p>
+</div></body></html>"""
