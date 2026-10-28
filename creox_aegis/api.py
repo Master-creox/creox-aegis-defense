@@ -29,6 +29,7 @@ from pydantic import BaseModel
 from .correlation import correlate
 from .detectors import run_detectors
 from .parser import parse_text
+from .real_threats import get_real_threats
 
 DB_PATH = os.environ.get("AEGIS_DB", "aegis.db")
 
@@ -110,6 +111,15 @@ def incident(incident_id: int):
     return {"error": "incident not found"}
 
 
+@app.get("/real-threats")
+def real_threats(limit: int = 30):
+    try:
+        threats = get_real_threats(limit=min(limit, 50))
+        return {"source": "Emerging Threats Block-IPs (public blocklist)", "count": len(threats), "note": "Known malicious IPs reported publicly; locations are approximate city/region geolocation, not exact attacker locations, and not attacks on this system.", "threats": threats}
+    except Exception as exc:
+        return {"source": "Emerging Threats Block-IPs (public blocklist)", "count": 0, "error": str(exc), "threats": []}
+
+
 @app.get("/", response_class=HTMLResponse)
 def dashboard():
     incidents = list_incidents()
@@ -179,6 +189,7 @@ a{{color:#22d3ee}}
 <div class="small">Unique attacker IPs: <b style="color:#fff">{ips}</b><br>Evidence lines analysed: <b style="color:#fff">{evidence}</b><br>Detectors active: <b style="color:#fff">5</b> — brute force, port scan, credential stuffing, SQLi probe, burst</div></div>
 <div class="panel"><h2>Threat Network — Lab View</h2>
 <div id="chartdiv" style="width:100%;height:300px"></div>
+<div id="real-note" class="small" style="text-align:center;margin-top:8px">Loading real threat IPs…</div>
 <div class="small" style="text-align:center;margin-top:8px">Lab visualisation only — incidents are from analysed log files, not real-world traffic. Drag to spin the globe.</div>
 <div class="pipeline"><div class="step"><b>01</b>Detect</div><div class="step"><b>02</b>Analyse</div><div class="step"><b>03</b>Contain</div><div class="step"><b>04</b>Respond</div><div class="step"><b>05</b>Recover</div></div></div>
 <div class="panel"><h2>AI Analysis</h2>
@@ -208,6 +219,13 @@ polygonSeries.mapPolygons.template.setAll({{ fill: am5.color(0x0e7490), stroke: 
 polygonSeries.mapPolygons.template.states.create("hover", {{ fill: am5.color(0x22d3ee), fillOpacity: 1 }});
 var spin = chart.animate({{ key: "rotationX", from: 0, to: 360, duration: 30000, loops: Infinity }});
 chart.appear(1000, 100);
+fetch("/real-threats").then(function(r){{return r.json();}}).then(function(data){{
+  if (!data.threats || !data.threats.length) return;
+  var pointSeries = chart.series.push(am5map.MapPointSeries.new(root, {{}}));
+  pointSeries.bullets.push(function(){{ return am5.Bullet.new(root, {{ sprite: am5.Circle.new(root, {{ radius: 4, fill: am5.color(0xf43f5e), stroke: am5.color(0xffffff), strokeWidth: 1 }}) }}); }});
+  data.threats.forEach(function(t){{ pointSeries.pushDataItem({{ latitude: t.lat, longitude: t.lon, title: t.ip + " — " + t.country }}); }});
+  var note = document.getElementById("real-note"); if (note) note.textContent = "Real threats on globe: " + data.count + " known malicious IPs (" + data.source + "). Locations approximate.";
+}}).catch(function(){{}});
 }} catch (e) {{
   document.getElementById("chartdiv").innerHTML = "<p style='text-align:center;padding:110px 20px;color:#fca5a5'>Globe load nahi hua: " + e.message + "<br>Browser me F12 → Console me error check karo, ya page ko Ctrl+F5 se hard refresh karo.</p>";
 }}
