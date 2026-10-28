@@ -1,7 +1,7 @@
 # Creox Aegis — Autonomous Cyber Defense — Blueprint (DRAFT, 2026-10-28)
 
 **Owner:** Akash Kumar (Master Creox), BCA Cybersecurity
-**Status:** Blueprint draft — NO code yet, awaiting Akash's approval + decisions below.
+**Status:** Blueprint FINAL (locked 2026-10-28) — v1 built + pushed (see below).
 **Chosen:** 2026-10-28, first of his 5 new ideas.
 
 ## Name note — IMPORTANT
@@ -40,8 +40,13 @@ Python (zero-dependency detector core, like the sniffer), FastAPI for the dashbo
 ## Test / demo data
 Bundled fictional sample logs only (no real user data, no real IPs of real people). Every benchmark number must come from those sample logs and be reproducible by running the tests.
 
-## Open decisions (Akash's answers only — non-blocking for blueprint, blocking for repo/build)
-1. Repo name: `creox-aegis-defense` vs `creox-aegis` vs another name?
-2. Response mode in v1: suggest-only everywhere, or lab auto-block allowed in the simulated lab?
-3. Public from day 1, or private first (like the practice lab was)?
-4. Stack OK as proposed (Python + FastAPI + SQLite), or Python-only CLI first?
+## Decisions LOCKED (Akash, 2026-10-28)
+1. Repo name: `creox-aegis-defense` — created by Akash, PUBLIC.
+2. Response mode: **suggest-only** everywhere (no lab auto-block either).
+3. Visibility: PUBLIC from day 1.
+4. Stack: **Python + FastAPI + SQLite approved.** v1 ships the Python detector core as a CLI (zero dependencies, tested); FastAPI + SQLite dashboard is Phase 3, as planned.
+
+## v1 DONE (2026-10-28, verified)
+- Repo `Master-creox/creox-aegis-defense` (main, public), commit `bae2e1c7`.
+- Files: README.md, LICENSE (MIT), BLUEPRINT.md, creox_aegis/ (parser, detectors, correlation, cli), tests/test_aegis.py, sample_logs/sample.log.
+- Tests: 7/7 pass (unittest). CLI on sample log: 22 events → 1 incident, IP 192.168.1.50, risk 95/100, detectors brute_force + port_scan + web_probe_sqli_pattern, normal user 192.168.1.10 clean.
