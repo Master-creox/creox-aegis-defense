@@ -35,9 +35,18 @@ Expected on the bundled sample log: 22 events, 1 incident (attacker
 192.168.1.50, brute force + port scan + SQLi probe), normal user
 192.168.1.10 produces no incident. All 7 tests pass.
 
+## Phase 2 — Simulated honeypot lab (DONE)
+```bash
+python -m creox_aegis.honeypot --out sample_logs/honeypot.log
+python -m creox_aegis.cli sample_logs/honeypot.log
+```
+This simulation opens NO network port and is never internet-facing — it
+writes a fictional 20-line attacker session (port scan → brute force →
+SQLi probe) that the v1 detectors analyse into 1 incident (95/100).
+Tests: 8/8 pass.
+
 ## Roadmap
-- Phase 2: simulated honeypot lab (fake service, lab only, never internet-facing)
-- Phase 3: FastAPI dashboard + exportable report
+- Phase 3: FastAPI dashboard + SQLite + exportable report
 
 ## Boundaries (never to be added)
 - No real-target scanning, exploitation, payloads, or malware.

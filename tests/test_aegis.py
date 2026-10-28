@@ -47,5 +47,21 @@ class TestAegis(unittest.TestCase):
         self.assertIn("human approval", self.incidents[0].suggested_response)
 
 
+class TestHoneypot(unittest.TestCase):
+    def test_simulated_honeypot_produces_one_incident(self):
+        import tempfile
+        from creox_aegis.honeypot import simulate
+        from creox_aegis.parser import parse_file
+        with tempfile.NamedTemporaryFile("w", suffix=".log", delete=False) as tf:
+            path = tf.name
+        lines = simulate(path)
+        self.assertEqual(len(lines), 20)
+        incidents = correlate(run_detectors(parse_file(path)))
+        self.assertEqual(len(incidents), 1)
+        self.assertEqual(incidents[0].ip, "10.99.99.99")
+        self.assertIn("port_scan", incidents[0].detectors)
+        self.assertIn("brute_force", incidents[0].detectors)
+
+
 if __name__ == "__main__":
     unittest.main()
