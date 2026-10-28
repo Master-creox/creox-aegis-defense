@@ -125,44 +125,52 @@ def dashboard():
         f"<tr><td>{i['id']}</td><td><b>{i['ip']}</b></td><td>{i['risk_score']}</td><td>{', '.join(i['detectors'])}</td><td>{i['first_seen']} — {i['last_seen']}</td></tr>"
         for i in incidents
     ) or "<tr><td colspan='5'>No incidents yet.</td></tr>"
-    # Professional network-graph SVG (nodes + links, no emoji, no cartoon globe)
     nodes = [(60,60),(140,40),(220,70),(110,120),(190,130),(260,50),(300,120),(170,180),(240,180)]
     links = [(0,1),(1,2),(1,3),(3,4),(2,5),(5,6),(3,7),(4,8),(6,8),(7,8)]
-    svg_links = "".join(f"<line x1='{nodes[a][0]}' y1='{nodes[a][1]}' x2='{nodes[b][0]}' y2='{nodes[b][1]}' stroke='#155e75' stroke-width='1'/>" for a,b in links)
-    svg_nodes = "".join(f"<circle cx='{x}' cy='{y}' r='5' fill='#22d3ee'/><circle cx='{x}' cy='{y}' r='10' fill='none' stroke='#164e63'/>" for x,y in nodes)
+    svg_links = "".join(f"<line x1='{nodes[a][0]}' y1='{nodes[a][1]}' x2='{nodes[b][0]}' y2='{nodes[b][1]}' stroke='#0e7490' stroke-width='1'/>" for a,b in links)
+    svg_nodes = "".join(f"<circle class='pulse-node' cx='{x}' cy='{y}' r='5' fill='#22d3ee'/>" for x,y in nodes)
     return f"""<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Creox Aegis — Threat Detection &amp; Response</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-*{{box-sizing:border-box}}body{{margin:0;font-family:'Segoe UI',system-ui,Arial,sans-serif;background:#050a12;color:#dbeafe}}
-header{{padding:16px 28px;background:#08111e;border-bottom:1px solid #1e3a5f;display:flex;justify-content:space-between;align-items:center}}
-.brand{{font-size:19px;font-weight:700;letter-spacing:2px}} .brand span{{color:#22d3ee}}
-.tag{{color:#94a3b8;font-size:12px;letter-spacing:1px;margin-top:2px}}
-.grid{{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:14px;padding:14px}}@media(max-width:900px){{.grid{{grid-template-columns:1fr}}}}
-.panel{{background:#0a1526;border:1px solid #1e3a5f;border-radius:8px;padding:18px}}
-.panel h2{{margin:0 0 14px;font-size:12px;letter-spacing:2px;color:#7dd3fc;text-transform:uppercase}}
-.alert{{display:flex;gap:10px;align-items:flex-start;border-bottom:1px solid #1e3a5f;padding:10px 0}}
-.dot{{width:9px;height:9px;border-radius:50%;margin-top:5px;flex-shrink:0}}.dot.red{{background:#f43f5e}}.dot.amber{{background:#f59e0b}}
-.risk{{margin-left:auto;color:#f43f5e}}.small{{color:#94a3b8;font-size:13px;line-height:1.5}}
+*{{box-sizing:border-box}}body{{margin:0;font-family:'Rajdhani',system-ui,Arial,sans-serif;background:#020617;color:#dbeafe;overflow-x:hidden}}
+body::before{{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(34,211,238,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.06) 1px,transparent 1px);background-size:44px 44px;pointer-events:none}}
+header{{position:relative;padding:16px 28px;background:linear-gradient(90deg,#04121f,#071a2e);border-bottom:1px solid #22d3ee;display:flex;justify-content:space-between;align-items:center;box-shadow:0 0 30px rgba(34,211,238,.25)}}
+.brand{{font-family:'Orbitron',sans-serif;font-size:20px;font-weight:800;letter-spacing:3px}} .brand span{{color:#22d3ee;text-shadow:0 0 18px #22d3ee}}
+.tag{{color:#67e8f9;font-size:11px;letter-spacing:3px;margin-top:3px}}
+.status{{font-size:12px;letter-spacing:2px;color:#34d399}} .status b{{color:#34d399}}
+.grid{{position:relative;display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:14px;padding:14px}}@media(max-width:900px){{.grid{{grid-template-columns:1fr}}}}
+.panel{{position:relative;background:linear-gradient(180deg,rgba(8,47,73,.55),rgba(2,6,23,.85));border:1px solid rgba(34,211,238,.35);border-radius:4px;padding:18px;backdrop-filter:blur(6px);box-shadow:0 0 24px rgba(34,211,238,.12) inset}}
+.panel::before,.panel::after{{content:'';position:absolute;width:18px;height:18px;border-color:#22d3ee;border-style:solid}}
+.panel::before{{top:-1px;left:-1px;border-width:2px 0 0 2px}} .panel::after{{bottom:-1px;right:-1px;border-width:0 2px 2px 0}}
+.panel h2{{margin:0 0 14px;font-family:'Orbitron',sans-serif;font-size:12px;letter-spacing:3px;color:#67e8f9;text-transform:uppercase}}
+.alert{{display:flex;gap:10px;align-items:flex-start;border-bottom:1px solid rgba(34,211,238,.2);padding:10px 0}}
+.dot{{width:9px;height:9px;border-radius:50%;margin-top:5px;flex-shrink:0;box-shadow:0 0 12px currentColor}}.dot.red{{background:#f43f5e;color:#f43f5e}}.dot.amber{{background:#f59e0b;color:#f59e0b}}
+.risk{{margin-left:auto;color:#f43f5e;text-shadow:0 0 12px #f43f5e}}.small{{color:#94a3b8;font-size:14px;line-height:1.5}}
+.radar{{position:relative;width:260px;height:260px;margin:8px auto;border-radius:50%;border:1px solid rgba(34,211,238,.5);background:radial-gradient(circle,rgba(34,211,238,.18),transparent 65%);overflow:hidden;box-shadow:0 0 40px rgba(34,211,238,.3)}}
+.radar::before{{content:'';position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,rgba(34,211,238,.45),transparent 22%);animation:sweep 4s linear infinite}}
+@keyframes sweep{{to{{transform:rotate(360deg)}}}}
+.pulse-node{{animation:pulse 2s ease-in-out infinite}} @keyframes pulse{{0%,100%{{opacity:1}}50%{{opacity:.35}}}}
 .pipeline{{display:flex;justify-content:space-between;margin-top:16px}}
-.step{{text-align:center;flex:1;border-top:2px solid #155e75;padding-top:10px;font-size:12px;letter-spacing:1px;color:#94a3b8}}
-.step b{{display:block;color:#e2e8f0;font-size:14px;letter-spacing:0}}
-.check{{color:#e2e8f0;margin:9px 0;font-size:14px}} .check span{{color:#34d399;margin-right:8px}}
+.step{{text-align:center;flex:1;border-top:2px solid #22d3ee;padding-top:10px;font-size:12px;letter-spacing:2px;color:#94a3b8}}
+.step b{{display:block;color:#fff;font-family:'Orbitron',sans-serif;font-size:15px;letter-spacing:0}}
+.check{{color:#e2e8f0;margin:9px 0;font-size:15px}} .check span{{color:#34d399;margin-right:8px;text-shadow:0 0 10px #34d399}}
 .gauge{{display:flex;flex-direction:column;align-items:center;gap:6px}}
-.gauge-wrap{{position:relative;width:150px;height:150px}}
+.gauge-wrap{{position:relative;width:150px;height:150px;filter:drop-shadow(0 0 14px rgba(244,63,94,.55))}}
 .gauge-wrap svg{{display:block}} .gauge-center{{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}}
-.gauge-num{{font-size:32px;font-weight:800}} .gauge-label{{font-size:11px;letter-spacing:1px;color:#94a3b8}}
+.gauge-num{{font-family:'Orbitron',sans-serif;font-size:34px;font-weight:800}} .gauge-label{{font-size:11px;letter-spacing:2px;color:#94a3b8}}
 .legend{{font-size:13px;color:#94a3b8;line-height:1.9;text-align:center}}
-button{{background:#22d3ee;border:0;padding:9px 16px;border-radius:6px;font-weight:700;cursor:pointer;color:#082f49}}
-table{{width:100%;border-collapse:collapse}}th,td{{border-bottom:1px solid #1e3a5f;padding:10px;text-align:left;font-size:14px}}th{{color:#7dd3fc;font-size:12px;letter-spacing:1px;text-transform:uppercase}}
+button{{background:#22d3ee;border:0;padding:9px 18px;border-radius:4px;font-weight:700;cursor:pointer;color:#082f49;letter-spacing:1px;box-shadow:0 0 18px rgba(34,211,238,.6)}}
+table{{width:100%;border-collapse:collapse}}th,td{{border-bottom:1px solid rgba(34,211,238,.2);padding:10px;text-align:left;font-size:15px}}th{{color:#67e8f9;font-size:12px;letter-spacing:2px;text-transform:uppercase}}
 a{{color:#22d3ee}}
 </style></head><body>
-<header><div><div class="brand">CREOX <span>AEGIS</span></div><div class="tag">THREAT DETECTION &amp; RESPONSE — SECURITY OPERATIONS</div></div><button onclick="location.reload()">Refresh</button></header>
+<header><div><div class="brand">CREOX <span>AEGIS</span></div><div class="tag">THREAT DETECTION &amp; RESPONSE — SECURITY OPERATIONS</div></div><div class="status">● SYSTEM ONLINE · DEFENSE ACTIVE</div><button onclick="location.reload()">Refresh</button></header>
 <div class="grid">
 <div class="panel"><h2>Active Incidents — {total}</h2>{left}
 <h2 style="margin-top:18px">Lab Overview</h2>
 <div class="small">Unique attacker IPs: <b style="color:#fff">{ips}</b><br>Evidence lines analysed: <b style="color:#fff">{evidence}</b><br>Detectors active: <b style="color:#fff">5</b> — brute force, port scan, credential stuffing, SQLi probe, burst</div></div>
 <div class="panel"><h2>Threat Network — Lab View</h2>
-<svg width="100%" viewBox="0 0 340 210" style="background:#071426;border-radius:6px">{svg_links}{svg_nodes}</svg>
+<div class="radar"><svg width="260" height="260" viewBox="0 0 340 210" style="position:relative;z-index:1">{svg_links}{svg_nodes}</svg></div>
 <div class="small" style="text-align:center;margin-top:8px">Lab visualisation only — incidents are from analysed log files, not real-world traffic.</div>
 <div class="pipeline"><div class="step"><b>01</b>Detect</div><div class="step"><b>02</b>Analyse</div><div class="step"><b>03</b>Contain</div><div class="step"><b>04</b>Respond</div><div class="step"><b>05</b>Recover</div></div></div>
 <div class="panel"><h2>AI Analysis</h2>
@@ -175,7 +183,7 @@ a{{color:#22d3ee}}
 <div class="gauge"><div class="gauge-wrap"><svg width="150" height="150" viewBox="0 0 140 140"><circle cx="70" cy="70" r="52" fill="none" stroke="#1e3a5f" stroke-width="12"/><circle cx="70" cy="70" r="52" fill="none" stroke="#f43f5e" stroke-width="12" stroke-dasharray="{dash} 326.7" stroke-linecap="round" transform="rotate(-90 70 70)"/></svg><div class="gauge-center"><div class="gauge-num">{highest}</div><div class="gauge-label">HIGHEST RISK</div></div></div>
 <div class="legend">Critical: {crit} &nbsp;·&nbsp; High: {high} &nbsp;·&nbsp; Medium / Low: {med}</div></div></div>
 </div>
-<div style="padding:0 14px 20px"><div class="panel"><h2>All Incidents — Timeline &amp; Detail</h2>
+<div style="position:relative;padding:0 14px 20px"><div class="panel"><h2>All Incidents — Timeline &amp; Detail</h2>
 <table><tr><th>ID</th><th>IP</th><th>Risk</th><th>Detectors</th><th>Timeline</th></tr>{rows}</table>
 <p class="small">Defensive only, lab only. Responses are suggestions needing human approval. API docs: <a href="/docs">/docs</a> · Health: <a href="/health">/health</a> · JSON: <a href="/incidents">/incidents</a></p></div></div>
 </body></html>"""
