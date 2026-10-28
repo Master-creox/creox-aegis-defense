@@ -193,14 +193,14 @@ a{{color:#22d3ee}}
 <script>
 var root = am5.Root.new("chartdiv");
 root.setThemes([am5themes_Animated.new(root)]);
-var chart = root.container.children.push(am5map.MapChart.new(root, {
+var chart = root.container.children.push(am5map.MapChart.new(root, {{
   panX: "rotateX", panY: "rotateY", projection: am5map.geoOrthographic(),
   homeZoomLevel: 0.95, zoomLevel: 0.95, minZoomLevel: 0.5, animationDuration: 800
-}));
-var polygonSeries = chart.series.push(am5map.MapPolygonSeries.new(root, { geoJSON: am5geodata_worldLow }));
-polygonSeries.mapPolygons.template.setAll({ fill: am5.color(0x155e75), stroke: am5.color(0x22d3ee), strokeWidth: 0.5, tooltipText: "{name}", interactive: true });
-polygonSeries.mapPolygons.template.states.create("hover", { fill: am5.color(0x22d3ee), fillOpacity: 1 });
-var spin = chart.animate({ key: "rotationX", from: 0, to: 360, duration: 30000, loops: Infinity });
+}}));
+var polygonSeries = chart.series.push(am5map.MapPolygonSeries.new(root, {{ geoJSON: am5geodata_worldLow }}));
+polygonSeries.mapPolygons.template.setAll({{ fill: am5.color(0x155e75), stroke: am5.color(0x22d3ee), strokeWidth: 0.5, tooltipText: "{{name}}", interactive: true }});
+polygonSeries.mapPolygons.template.states.create("hover", {{ fill: am5.color(0x22d3ee), fillOpacity: 1 }});
+var spin = chart.animate({{ key: "rotationX", from: 0, to: 360, duration: 30000, loops: Infinity }});
 chart.appear(1000, 100);
 </script>
 </body></html>"""
