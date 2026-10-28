@@ -149,7 +149,7 @@ header{{position:relative;padding:16px 28px;background:linear-gradient(90deg,#04
 .risk{{margin-left:auto;color:#f43f5e;text-shadow:0 0 12px #f43f5e}}.small{{color:#94a3b8;font-size:14px;line-height:1.5}}
 .radar{{position:relative;width:280px;height:280px;margin:8px auto;border-radius:50%;border:1px solid rgba(34,211,238,.6);background:radial-gradient(circle at 50% 50%,#0e3a5e 0%,#071a2e 55%,#020617 100%);overflow:hidden;box-shadow:0 0 50px rgba(34,211,238,.4),0 0 18px rgba(34,211,238,.3) inset}}
 .radar::before{{content:'';position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,rgba(34,211,238,.45),transparent 22%);animation:sweep 4s linear infinite}}
-@keyframes sweep{{to{{transform:rotate(360deg)}}}} @keyframes blip{{0%{{opacity:0;transform:scale(.6)}}25%{{opacity:1;transform:scale(1.4)}}100%{{opacity:0;transform:scale(2.2)}}}} @keyframes glowpulse{{0%,100%{{box-shadow:0 0 24px rgba(34,211,238,.25)}}50%{{box-shadow:0 0 44px rgba(34,211,238,.55)}}}} .panel{{animation:glowpulse 5s ease-in-out infinite}}
+@keyframes sweep{{to{{transform:rotate(360deg)}}}} @keyframes maprotate{{to{{transform:rotate(360deg)}}}} @keyframes sheen{{0%{{transform:translateX(-120%) skewX(-18deg)}}100%{{transform:translateX(220%) skewX(-18deg)}}}} @keyframes blip{{0%{{opacity:0;transform:scale(.6)}}25%{{opacity:1;transform:scale(1.4)}}100%{{opacity:0;transform:scale(2.2)}}}} @keyframes glowpulse{{0%,100%{{box-shadow:0 0 24px rgba(34,211,238,.25)}}50%{{box-shadow:0 0 44px rgba(34,211,238,.55)}}}} .panel{{animation:glowpulse 5s ease-in-out infinite}}
 .pulse-node{{animation:pulse 2s ease-in-out infinite}} @keyframes pulse{{0%,100%{{opacity:1}}50%{{opacity:.35}}}}
 .pipeline{{display:flex;justify-content:space-between;margin-top:16px}}
 .step{{text-align:center;flex:1;border-top:2px solid #22d3ee;padding-top:10px;font-size:12px;letter-spacing:2px;color:#94a3b8}}
@@ -171,20 +171,9 @@ a{{color:#22d3ee}}
 <div class="small">Unique attacker IPs: <b style="color:#fff">{ips}</b><br>Evidence lines analysed: <b style="color:#fff">{evidence}</b><br>Detectors active: <b style="color:#fff">5</b> — brute force, port scan, credential stuffing, SQLi probe, burst</div></div>
 <div class="panel"><h2>Threat Network — Lab View</h2>
 <div class="radar">
-<svg width="280" height="280" viewBox="0 0 280 280" style="position:absolute;inset:0;z-index:1">
-<circle cx="140" cy="140" r="118" fill="none" stroke="rgba(34,211,238,.35)"/>
-<circle cx="140" cy="140" r="80" fill="none" stroke="rgba(34,211,238,.25)"/>
-<circle cx="140" cy="140" r="42" fill="none" stroke="rgba(34,211,238,.2)"/>
-<ellipse cx="140" cy="140" rx="118" ry="42" fill="none" stroke="rgba(34,211,238,.3)"/>
-<ellipse cx="140" cy="140" rx="118" ry="84" fill="none" stroke="rgba(34,211,238,.22)"/>
-<ellipse cx="140" cy="140" rx="52" ry="118" fill="none" stroke="rgba(34,211,238,.3)"/>
-<ellipse cx="140" cy="140" rx="92" ry="118" fill="none" stroke="rgba(34,211,238,.22)"/>
-<line x1="22" y1="140" x2="258" y2="140" stroke="rgba(34,211,238,.25)"/>
-<line x1="140" y1="22" x2="140" y2="258" stroke="rgba(34,211,238,.25)"/>
-</svg>
-<svg width="280" height="280" viewBox="0 0 280 280" style="position:absolute;inset:0;z-index:1">
-<defs><clipPath id="globeClip"><circle cx="140" cy="140" r="118"/></clipPath></defs>
-<g clip-path="url(#globeClip)" transform="translate(0,55) scale(0.28)" fill="rgba(34,211,238,0.65)" stroke="#a5f3fc" stroke-width="6">
+<div style="position:absolute;inset:0;z-index:1;animation:maprotate 24s linear infinite"><svg width="280" height="280" viewBox="0 0 280 280" style="width:100%;height:100%">
+<defs><linearGradient id="holoGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#22d3ee" stop-opacity="0.9"/><stop offset="50%" stop-color="#818cf8" stop-opacity="0.7"/><stop offset="100%" stop-color="#22d3ee" stop-opacity="0.9"/></linearGradient><clipPath id="globeClip"><circle cx="140" cy="140" r="118"/></clipPath></defs>
+<g clip-path="url(#globeClip)" transform="translate(0,55) scale(0.28)" fill="url(#holoGrad)" stroke="#a5f3fc" stroke-width="6">
 <path d="M80,140 L120,90 L200,70 L260,80 L300,130 L280,180 L220,210 L180,190 L140,170 Z"/>
 <path d="M280,260 L320,250 L360,300 L340,380 L300,400 L270,320 Z"/>
 <path d="M480,110 L540,90 L580,120 L560,160 L500,150 Z"/>
@@ -192,8 +181,9 @@ a{{color:#22d3ee}}
 <path d="M600,100 L750,80 L900,110 L920,180 L800,210 L650,180 Z"/>
 <path d="M800,340 L870,330 L890,370 L830,390 Z"/>
 </g>
-</svg>
-<div style="position:absolute;inset:0;z-index:2">
+</svg></div>
+<div style="position:absolute;inset:0;z-index:2;overflow:hidden;border-radius:50%"><div style="position:absolute;top:0;bottom:0;width:35%;background:linear-gradient(90deg,transparent,rgba(165,243,252,.28),transparent);animation:sheen 5s ease-in-out infinite"></div></div>
+<div style="position:absolute;inset:0;z-index:3">
 <span style="position:absolute;left:32%;top:28%;width:12px;height:12px;border-radius:50%;background:#f43f5e;box-shadow:0 0 16px #f43f5e;animation:blip 2.4s ease-out infinite"></span>
 <span style="position:absolute;left:62%;top:52%;width:12px;height:12px;border-radius:50%;background:#22d3ee;box-shadow:0 0 16px #22d3ee;animation:blip 3.1s ease-out infinite .8s"></span>
 <span style="position:absolute;left:48%;top:68%;width:12px;height:12px;border-radius:50%;background:#f59e0b;box-shadow:0 0 16px #f59e0b;animation:blip 2.8s ease-out infinite 1.4s"></span>
