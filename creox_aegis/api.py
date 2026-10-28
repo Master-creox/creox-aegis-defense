@@ -182,6 +182,17 @@ a{{color:#22d3ee}}
 <line x1="22" y1="140" x2="258" y2="140" stroke="rgba(34,211,238,.25)"/>
 <line x1="140" y1="22" x2="140" y2="258" stroke="rgba(34,211,238,.25)"/>
 </svg>
+<svg width="280" height="280" viewBox="0 0 280 280" style="position:absolute;inset:0;z-index:1">
+<defs><clipPath id="globeClip"><circle cx="140" cy="140" r="118"/></clipPath></defs>
+<g clip-path="url(#globeClip)" transform="translate(0,70) scale(0.28)" fill="rgba(34,211,238,0.35)" stroke="#22d3ee" stroke-width="3">
+<path d="M80,140 L120,90 L200,70 L260,80 L300,130 L280,180 L220,210 L180,190 L140,170 Z"/>
+<path d="M280,260 L320,250 L360,300 L340,380 L300,400 L270,320 Z"/>
+<path d="M480,110 L540,90 L580,120 L560,160 L500,150 Z"/>
+<path d="M500,200 L560,190 L610,240 L590,330 L530,350 L490,280 Z"/>
+<path d="M600,100 L750,80 L900,110 L920,180 L800,210 L650,180 Z"/>
+<path d="M800,340 L870,330 L890,370 L830,390 Z"/>
+</g>
+</svg>
 <div style="position:absolute;inset:0;z-index:2">
 <span style="position:absolute;left:32%;top:28%;width:12px;height:12px;border-radius:50%;background:#f43f5e;box-shadow:0 0 16px #f43f5e;animation:blip 2.4s ease-out infinite"></span>
 <span style="position:absolute;left:62%;top:52%;width:12px;height:12px;border-radius:50%;background:#22d3ee;box-shadow:0 0 16px #22d3ee;animation:blip 3.1s ease-out infinite .8s"></span>
