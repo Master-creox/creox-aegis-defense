@@ -111,6 +111,16 @@ def incident(incident_id: int):
     return {"error": "incident not found"}
 
 
+@app.get("/status")
+def status():
+    from .real_threats import _cache
+    incidents = list_incidents()
+    return {"service": "online", "version": "0.3.0", "incidents": len(incidents),
+            "highest_risk": max((i["risk_score"] for i in incidents), default=0),
+            "detectors_active": 5, "real_threats_cached": len(_cache["data"]),
+            "server_time_utc": __import__("datetime").datetime.utcnow().isoformat() + "Z"}
+
+
 @app.get("/real-threats")
 def real_threats(limit: int = 30):
     try:
@@ -183,6 +193,22 @@ table{{width:100%;border-collapse:collapse}}th,td{{border-bottom:1px solid rgba(
 a{{color:#22d3ee}}
 </style></head><body>
 <header><div><div class="brand">CREOX <span>AEGIS</span></div><div class="tag">THREAT DETECTION &amp; RESPONSE — SECURITY OPERATIONS</div></div><div class="status">● SYSTEM ONLINE · DEFENSE ACTIVE</div><button onclick="location.reload()">Refresh</button></header>
+<div style="position:relative;display:flex;gap:22px;flex-wrap:wrap;padding:12px 28px;background:#071426;border-bottom:1px solid rgba(34,211,238,.3);font-size:13px;letter-spacing:1px">
+<span>SERVICE: <b style="color:#34d399">ONLINE</b></span>
+<span>INCIDENTS: <b>{total}</b></span>
+<span>HIGHEST RISK: <b style="color:#f43f5e">{highest}</b></span>
+<span>DETECTORS: <b>5 ACTIVE</b></span>
+<span>REAL THREATS (FEED): <b id="feed-count">loading…</b></span>
+<span id="live-time">LAST UPDATED: loading…</span>
+</div>
+<script>
+fetch("/status").then(function(r){{return r.json();}}).then(function(d){{
+  var f = document.getElementById("feed-count");
+  if (f) f.textContent = d.real_threats_cached ? d.real_threats_cached + " cached" : "fetching via /real-threats…";
+  var t = document.getElementById("live-time");
+  if (t) t.textContent = "LAST UPDATED: " + new Date().toLocaleString("en-IN", {{timeZone: "Asia/Kolkata"}});
+}}).catch(function(){{}});
+</script>
 <div class="grid">
 <div class="panel"><h2>Active Incidents — {total}</h2>{left}
 <h2 style="margin-top:18px">Lab Overview</h2>
