@@ -194,20 +194,23 @@ a{{color:#22d3ee}}
 </style></head><body>
 <header><div><div class="brand">CREOX <span>AEGIS</span></div><div class="tag">THREAT DETECTION &amp; RESPONSE — SECURITY OPERATIONS</div></div><div class="status">● SYSTEM ONLINE · DEFENSE ACTIVE</div><button onclick="location.reload()">Refresh</button></header>
 <div style="position:relative;display:flex;gap:22px;flex-wrap:wrap;padding:12px 28px;background:#071426;border-bottom:1px solid rgba(34,211,238,.3);font-size:13px;letter-spacing:1px">
-<span>SERVICE: <b style="color:#34d399">ONLINE</b></span>
-<span>INCIDENTS: <b>{total}</b></span>
-<span>HIGHEST RISK: <b style="color:#f43f5e">{highest}</b></span>
+<span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#34d399;box-shadow:0 0 10px #34d399"></span> SERVICE: <b style="color:#34d399">ONLINE</b> <b style="color:#67e8f9">• LIVE</b></span>
+<span>INCIDENTS: <b id="status-incidents">{total}</b></span>
+<span>HIGHEST RISK: <b id="status-risk" style="color:#f43f5e">{highest}</b></span>
 <span>DETECTORS: <b>5 ACTIVE</b></span>
 <span>REAL THREATS (FEED): <b id="feed-count">loading…</b></span>
 <span id="live-time">LAST UPDATED: loading…</span>
 </div>
 <script>
-fetch("/status").then(function(r){{return r.json();}}).then(function(d){{
+function refreshStatus(){{ fetch("/status").then(function(r){{return r.json();}}).then(function(d){{
   var f = document.getElementById("feed-count");
   if (f) f.textContent = d.real_threats_cached ? d.real_threats_cached + " cached" : "fetching via /real-threats…";
+  var n = document.getElementById("status-incidents"); if (n) n.textContent = d.incidents;
+  var rk = document.getElementById("status-risk"); if (rk) rk.textContent = d.highest_risk;
   var t = document.getElementById("live-time");
   if (t) t.textContent = "LAST UPDATED: " + new Date().toLocaleString("en-IN", {{timeZone: "Asia/Kolkata"}});
-}}).catch(function(){{}});
+}}).catch(function(){{}}); }}
+refreshStatus(); setInterval(refreshStatus, 15000);
 </script>
 <div class="grid">
 <div class="panel"><h2>Active Incidents — {total}</h2>{left}
