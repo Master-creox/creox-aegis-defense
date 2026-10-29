@@ -202,7 +202,10 @@ a{{color:#22d3ee}}
 <span id="live-time">LAST UPDATED: loading…</span>
 </div>
 <script>
+var _seenIncidents = null;
 function refreshStatus(){{ fetch("/status").then(function(r){{return r.json();}}).then(function(d){{
+  if (_seenIncidents === null) _seenIncidents = d.incidents;
+  else if (d.incidents !== _seenIncidents) {{ location.reload(); return; }}
   var f = document.getElementById("feed-count");
   if (f) f.textContent = d.real_threats_cached ? d.real_threats_cached + " cached" : "fetching via /real-threats…";
   var n = document.getElementById("status-incidents"); if (n) n.textContent = d.incidents;
